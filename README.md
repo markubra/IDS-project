@@ -1,4 +1,4 @@
 # IDS-project
-# Authors: 
-  Marko Kubrachenko
-  Roman Vintoňak
+## Authors: 
+  ### Marko Kubrachenko
+  ### Roman Vintoňak
