@@ -1,4 +1,4 @@
 # IDS-project
 ## Authors: 
-Marko Kubrachenko [xkubra00]
+Marko Kubrachenko [xkubra00]\
 Roman Vintoňak    [xvinto00]
