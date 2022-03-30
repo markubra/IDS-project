@@ -6,8 +6,8 @@ DROP TABLE "SETKANI" CASCADE CONSTRAINTS;
 DROP TABLE "SETKANI UCAST" CASCADE CONSTRAINTS;
 DROP TABLE "CINNOST" CASCADE CONSTRAINTS;
 DROP TABLE "CINNOST UCAST" CASCADE CONSTRAINTS;
-
-
+DROP TABLE "DON" CASCADE CONSTRAINTS;
+DROP TABLE "VRAZDA" CASCADE CONSTRAINTS;
 
 DROP SEQUENCE familie_id;
 DROP SEQUENCE rajon_id;
@@ -31,12 +31,22 @@ CREATE TABLE "MAFIAN"
     "familie" INT
 );
 
+CREATE TABLE "DON"
+(
+    "rodne cislo" INT NOT NULL PRIMARY KEY,
+    constraint "mafian_fk" FOREIGN KEY("rodne cislo") REFERENCES MAFIAN("rodne cislo"),
+    "velikost bot" INT NOT NULL,
+    "barva oci" VARCHAR(100) NOT NULL,
+    "postava" VARCHAR(100) NOT NULL
+);
+
+
 CREATE TABLE "FAMILIE"
 (
     "id" INT DEFAULT familie_id.nextval PRIMARY KEY,
     "typ podnikani" VARCHAR(100),
     "don" INT,
-    constraint "don_fk2" FOREIGN KEY ("don") REFERENCES MAFIAN("rodne cislo")
+    constraint "don_fk2" FOREIGN KEY ("don") REFERENCES DON("rodne cislo")
 );
 
 ALTER TABLE MAFIAN ADD FOREIGN KEY ("familie") REFERENCES FAMILIE("id");
@@ -58,7 +68,7 @@ CREATE TABLE "OBJEDNAVKA"
     "cena" INT NOT NULL,
     "druh" VARCHAR(100) NOT NULL,
     "rodne_cislo" INT,
-    constraint "objednavatel_fk" FOREIGN KEY ("rodne_cislo") REFERENCES MAFIAN("rodne cislo")
+    constraint "objednavatel_fk" FOREIGN KEY ("rodne_cislo") REFERENCES DON("rodne cislo")
 );
 
 CREATE TABLE "SETKANI"
@@ -96,6 +106,15 @@ CREATE TABLE "CINNOST UCAST"
     constraint "mafian_fk" FOREIGN KEY ("rc mafiana") REFERENCES MAFIAN("rodne cislo")
 );
 
+CREATE TABLE "VRAZDA"
+(
+    "id" INT NOT NULL PRIMARY KEY,
+    constraint "cinnost_fk" FOREIGN KEY ("id") REFERENCES CINNOST("id"),
+    "zakaznik" VARCHAR(100),
+    "obet" VARCHAR(100) NOT NULL,
+    "zpusob zabiti" VARCHAR(100) NOT NULL
+
+);
 
 INSERT INTO "MAFIAN"
 ("jmeno", "rodne cislo", "bydliste", "narodnost") VALUES ('Nekdo', 220000000, 'Nádraží ', 'Narnie');
