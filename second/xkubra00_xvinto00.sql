@@ -1,3 +1,9 @@
+-- Project: IDS second part
+-- Authors:
+    -- Roman Vintoňak
+    -- Marko Kubrachenko
+-- Date: 03.04.2022
+
 DROP TABLE "FAMILIE" CASCADE CONSTRAINTS;
 DROP TABLE "MAFIAN" CASCADE CONSTRAINTS;
 DROP TABLE "RAJON" CASCADE CONSTRAINTS;
@@ -163,9 +169,9 @@ INSERT INTO "OBJEDNAVKA"
     ("cena", "druh", "rc mafiana") VALUES ('124444', 'kokain', '8504020041');
 
 INSERT INTO "SETKANI"
-    ("cil", "cas", "rajon") VALUES ('Plány na příští měsíc', '4-4-2022 12:00:00', 'Lužánky');
+    ("cil", "cas", "rajon") VALUES ('Plány na příští měsíc', TO_DATE('2022-04-04 12:00', 'YYYY-MM-DD HH24:MI'), 'Lužánky');
 
 INSERT INTO "SETKANI UCAST"
     ("id setkani", "rc dona") VALUES ('1', '7911288099');
 INSERT INTO "SETKANI UCAST"
-    ("id setkani", "rc dona") VALUES ('1', '6902154380');*/
+    ("id setkani", "rc dona") VALUES ('1', '6902154380');
