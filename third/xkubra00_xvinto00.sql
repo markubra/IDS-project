@@ -87,6 +87,7 @@ CREATE TABLE "SETKANI UCAST"
 
     CONSTRAINT "setkani_ucast_fk" FOREIGN KEY ("id setkani") REFERENCES SETKANI("id"),
     CONSTRAINT "setkani_ucast_don_fk" FOREIGN KEY ("rc dona") REFERENCES MAFIAN("rodne cislo")
+    PRIMARY KEY("idsetkani", "rc dona")
 );
 
 CREATE TABLE "CINNOST"
@@ -107,6 +108,7 @@ CREATE TABLE "CINNOST UCAST"
 
     CONSTRAINT "cinnost_ucast_fk" FOREIGN KEY ("nazev cinnosti") REFERENCES CINNOST("nazev"),
     CONSTRAINT "cinnost_ucast_mafian_fk" FOREIGN KEY ("rc mafiana") REFERENCES MAFIAN("rodne cislo")
+    PRIMARY KEY("nazev cinnosti", "rc mafiana")
 );
 
 CREATE TABLE "VRAZDA"
