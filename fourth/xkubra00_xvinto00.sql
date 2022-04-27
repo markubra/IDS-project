@@ -122,6 +122,23 @@ CREATE TABLE "VRAZDA"
     CONSTRAINT "vrazda_don_fk" FOREIGN KEY ("rc dona") REFERENCES DON("rodne cislo")
 );
 
+------------ TRIGGERS ------------
+
+-- Don se nesmi nezucastni zadne kriminalni cinnosti.
+-- Trigger provadi kontrolu pred ulozenim do tabulky "CINNOST UCAST".
+CREATE OR REPLACE TRIGGER kontrola_ucasti
+    BEFORE INSERT OR UPDATE OF "nazev cinnosti", "rc mafiana" ON "CINNOST UCAST"
+    FOR EACH ROW
+    DECLARE
+        je_don NUMBER;
+    BEGIN
+        SELECT COUNT(*) INTO je_don FROM DON WHERE DON."rodne cislo" = :NEW."rc mafiana";
+        IF je_don > 0 THEN
+            raise_application_error(-20202,'Don nikdy nespini ruce!');
+        END IF;
+    END;
+/
+
 ------------ TEST DATA ------------
 
 INSERT INTO "FAMILIE"
