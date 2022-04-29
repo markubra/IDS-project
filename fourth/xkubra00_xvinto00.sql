@@ -126,8 +126,8 @@ CREATE TABLE "VRAZDA"
 
 -- Don se nesmi nezucastni zadne kriminalni cinnosti.
 -- Trigger provadi kontrolu pred ulozenim do tabulky "CINNOST UCAST".
-CREATE OR REPLACE TRIGGER kontrola_ucasti
-    BEFORE INSERT OR UPDATE OF "nazev cinnosti", "rc mafiana" ON "CINNOST UCAST"
+CREATE OR REPLACE TRIGGER kontrola_cinnost_ucast
+    BEFORE INSERT OR UPDATE OF "rc mafiana" ON "CINNOST UCAST"
     FOR EACH ROW
     DECLARE
         je_don NUMBER;
@@ -135,6 +135,23 @@ CREATE OR REPLACE TRIGGER kontrola_ucasti
         SELECT COUNT(*) INTO je_don FROM DON WHERE DON."rodne cislo" = :NEW."rc mafiana";
         IF je_don > 0 THEN
             raise_application_error(-20202,'Don nikdy nespini ruce!');
+        END IF;
+    END;
+/
+
+-- Don nemuze na vice setkani ve stejny den.
+-- Trigger provadi kontrolu, zda Don nebyl zapsan do setkani, pokud v tento den uz neco ma.
+CREATE OR REPLACE TRIGGER kontrola_setkani_ucast
+    BEFORE INSERT OR UPDATE OF "rc dona" ON "SETKANI UCAST"
+    FOR EACH ROW
+    DECLARE
+        ma_setkani NUMBER;
+    BEGIN
+        SELECT COUNT(*) INTO ma_setkani FROM "SETKANI UCAST" JOIN "SETKANI"
+            ON "SETKANI UCAST"."id setkani" = SETKANI."id" WHERE "rc dona" = :NEW."rc dona" AND
+                TRUNC("cas") = (SELECT TRUNC("cas") FROM SETKANI WHERE "id" = :NEW."id setkani");
+        IF ma_setkani > 0 THEN
+            raise_application_error(-20201,'Don v tento den uz ma setkani!');
         END IF;
     END;
 /
