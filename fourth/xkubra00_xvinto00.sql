@@ -4,6 +4,8 @@
     -- Marko Kubrachenko
 -- Date: 03.04.2022
 
+DROP INDEX "nebezpeci_index";
+
 DROP TABLE "FAMILIE" CASCADE CONSTRAINTS;
 DROP TABLE "MAFIAN" CASCADE CONSTRAINTS;
 DROP TABLE "RAJON" CASCADE CONSTRAINTS;
@@ -17,6 +19,8 @@ DROP TABLE "VRAZDA" CASCADE CONSTRAINTS;
 
 DROP SEQUENCE objednavka_id;
 DROP SEQUENCE setkani_id;
+
+DROP MATERIALIZED VIEW "objednavky";
 
 CREATE SEQUENCE objednavka_id START WITH 1 INCREMENT BY 1;
 CREATE SEQUENCE setkani_id START WITH 1 INCREMENT BY 1;
@@ -283,20 +287,37 @@ SELECT "jmeno" FROM "MAFIAN" WHERE "rodne cislo" IN (
 
 ---------- EXPLAIN PLAN ----------
 
+-- Kolikrat se mafiani zucastnili cinnosti podle jejich nebezpeci?
 EXPLAIN PLAN FOR
     SELECT "nebezpeci", COUNT("rc mafiana") AS celkove FROM "CINNOST" JOIN "CINNOST UCAST"
     ON CINNOST."nazev" = "CINNOST UCAST"."nazev cinnosti" WHERE "rajon" = 'Ponava' GROUP BY "nebezpeci";
 SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY);
 
+-- Index pro seskupeni podle nazvu rajonu.
 CREATE INDEX "nebezpeci_index" ON "CINNOST" ("rajon");
+
+-- Ten stejny dotaz, ale za pouziti indexu "nebezpeci_index".
 EXPLAIN PLAN FOR
     SELECT "nebezpeci", COUNT("rc mafiana") AS celkove FROM "CINNOST" JOIN "CINNOST UCAST"
     ON CINNOST."nazev" = "CINNOST UCAST"."nazev cinnosti" WHERE "rajon" = 'Ponava' GROUP BY "nebezpeci";
 SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY);
-DROP INDEX "nebezpeci_index";
+
+---------- MATERIALIZED VIEW  ----------
+
+CREATE MATERIALIZED VIEW "objednavky" AS
+    SELECT * FROM OBJEDNAVKA;
+
+-- Zmena hodnot v tabulce OBJEDNAVKA
+UPDATE "OBJEDNAVKA" SET "cena" = 3500000 WHERE "id" = 2;
+
+-- V materializovanem pohledu se cena objednavky nezmenila,
+SELECT * FROM "objednavky";
+-- ale v tabulce -- ano.
+SELECT * FROM OBJEDNAVKA;
 
 ------------ PRIVILEGES ------------
 
+-- Vsechna prava k vsem tabulkam.
 GRANT ALL ON "FAMILIE" TO XVINTO00;
 GRANT ALL ON "MAFIAN" TO XVINTO00;
 GRANT ALL ON "DON" TO XVINTO00;
@@ -307,3 +328,6 @@ GRANT ALL ON "SETKANI UCAST" TO XVINTO00;
 GRANT ALL ON "CINNOST" TO XVINTO00;
 GRANT ALL ON "CINNOST UCAST" TO XVINTO00;
 GRANT ALL ON "VRAZDA" TO XVINTO00;
+
+-- Prava k materializovanemu pohledu.
+GRANT ALL ON "objednavky" TO XVINTO00;
