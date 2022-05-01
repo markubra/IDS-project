@@ -138,7 +138,7 @@ CREATE OR REPLACE TRIGGER kontrola_cinnost_ucast
     BEGIN
         SELECT COUNT(*) INTO je_don FROM DON WHERE DON."rodne cislo" = :NEW."rc mafiana";
         IF je_don > 0 THEN
-            raise_application_error(-20202,'Don nikdy nespini ruce!');
+            raise_application_error(-20202,'Don si nikdy nespini ruce!');
         END IF;
     END;
 /
@@ -348,7 +348,7 @@ BEGIN
     end;
 END;
 
--- Příklad provedení procedury
+-- Příklad provedení procedury pocet_mafianu
 DECLARE
     pocet INT;
 BEGIN
@@ -377,7 +377,7 @@ BEGIN
     end loop;
 end;
 
--- Spuštění procedury
+-- Provedení procedury print_fam_info
 BEGIN
     print_fam_info;
 end;
@@ -385,7 +385,7 @@ end;
 
 ------------ PRIVILEGES ------------
 
--- Vsechna prava k vsem tabulkam.
+-- Vsechna prava ke vsem tabulkam.
 GRANT ALL ON "FAMILIE" TO XVINTO00;
 GRANT ALL ON "MAFIAN" TO XVINTO00;
 GRANT ALL ON "DON" TO XVINTO00;
