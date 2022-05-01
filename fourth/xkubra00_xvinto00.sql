@@ -156,6 +156,12 @@ CREATE OR REPLACE TRIGGER kontrola_setkani_ucast
     END;
 /
 
+
+
+
+
+
+
 ------------ TEST DATA ------------
 
 INSERT INTO "FAMILIE"
@@ -251,6 +257,8 @@ INSERT INTO "SETKANI UCAST"
 INSERT INTO "SETKANI UCAST"
     ("id setkani", "rc dona") VALUES ('2', '8810104919');
 
+
+
 ------------ SELECTS ------------
 
 -- Co si objednal mafiani a kolik jim to stalo? (2 joined tables)
@@ -281,6 +289,66 @@ SELECT "jmeno" FROM "MAFIAN" WHERE "rodne cislo" IN (
     SELECT "rc dona" FROM "DON" JOIN "SETKANI UCAST" ON "DON"."rodne cislo" = "SETKANI UCAST"."rc dona"
         JOIN "SETKANI" ON "SETKANI UCAST"."id setkani" = "SETKANI"."id"
             WHERE "cas" = TO_DATE('2022-05-01 18:00', 'YYYY-MM-DD HH24:MI'));
+
+
+------------ STORED PROCEDURES ------------
+
+-- Procedura vratí počet mafiánů v zadané familie do proměnné "pocet"
+CREATE OR REPLACE PROCEDURE pocet_mafianu("nazev familie" IN VARCHAR, "pocet" OUT INT) AS
+    "nazev" "FAMILIE"."nazev"%TYPE;
+    "hledany nazev" "FAMILIE"."nazev"%TYPE;
+    CURSOR "cursor" IS SELECT "nazev" FROM "FAMILIE";
+BEGIN
+    SELECT "nazev" INTO "hledany nazev" FROM FAMILIE WHERE "nazev" = "nazev familie";
+    "pocet" := 0;
+    OPEN "cursor";
+    LOOP
+        FETCH "cursor" INTO "nazev";
+        EXIT WHEN "cursor"%NOTFOUND;
+        IF "nazev" = "hledany nazev" THEN
+            "pocet" := "pocet" + 1;
+        end if;
+    end loop;
+    CLOSE "cursor";
+    EXCEPTION WHEN NO_DATA_FOUND THEN
+    BEGIN
+        DBMS_OUTPUT.PUT_LINE('Zadaná familie neexistuje!');
+    end;
+END;
+
+-- Příklad provedení procedury
+DECLARE
+    pocet INT;
+BEGIN
+    pocet_mafianu('Paniniovi', pocet);
+END;
+
+-- Procedura vypíše názvy všech familií, počet vlastněných rajónů a jména jejich donů
+CREATE OR REPLACE PROCEDURE print_fam_info AS
+    "nazev familie" "FAMILIE"."nazev"%TYPE;
+    "jmeno dona" "MAFIAN"."jmeno"%TYPE;
+    "pocet rajonu" NUMBER;
+    CURSOR "cursor" IS SELECT "nazev" FROM "FAMILIE";
+BEGIN
+    OPEN "cursor";
+    LOOP
+        FETCH "cursor" INTO "nazev familie";
+        EXIT WHEN "cursor"%NOTFOUND;
+        SELECT "jmeno" INTO "jmeno dona"
+            FROM MAFIAN, DON, FAMILIE
+            WHERE "nazev familie" = "FAMILIE"."nazev"
+              AND "FAMILIE"."nazev" = "MAFIAN"."familie"
+              AND "MAFIAN"."rodne cislo" = "DON"."rodne cislo"
+              FETCH FIRST 1 ROWS ONLY;
+        SELECT COUNT(*) INTO "pocet rajonu" FROM RAJON WHERE "RAJON"."familie" = "nazev familie";
+        DBMS_OUTPUT.PUT_LINE('Familie ' || "nazev familie" || ' vlastní ' || "pocet rajonu" || ' rajónů a její don je ' || "jmeno dona");
+    end loop;
+end;
+
+-- Spuštění procedury
+BEGIN
+    print_fam_info;
+end;
 
 
 ------------ PRIVILEGES ------------
