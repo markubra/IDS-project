@@ -1,10 +1,10 @@
--- Project: IDS second part
+-- Project: IDS
 -- Authors:
     -- Roman Vintoňak
     -- Marko Kubrachenko
 -- Date: 03.04.2022
 
-DROP INDEX "nebezpeci_index";
+DROP INDEX "rajon_index";
 
 DROP TABLE "FAMILIE" CASCADE CONSTRAINTS;
 DROP TABLE "MAFIAN" CASCADE CONSTRAINTS;
@@ -302,9 +302,9 @@ EXPLAIN PLAN FOR
 SELECT * FROM TABLE(DBMS_XPLAN.DISPLAY);
 
 -- Index pro seskupeni podle nazvu rajonu.
-CREATE INDEX "nebezpeci_index" ON "CINNOST" ("rajon");
+CREATE INDEX "rajon_index" ON "CINNOST" ("rajon");
 
--- Ten stejny dotaz, ale za pouziti indexu "nebezpeci_index".
+-- Ten stejny dotaz, ale za pouziti indexu "rajon_index".
 EXPLAIN PLAN FOR
     SELECT "nebezpeci", COUNT("rc mafiana") AS celkove FROM "CINNOST" JOIN "CINNOST UCAST"
     ON CINNOST."nazev" = "CINNOST UCAST"."nazev cinnosti" WHERE "rajon" = 'Ponava' GROUP BY "nebezpeci";
